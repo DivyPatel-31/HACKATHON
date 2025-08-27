@@ -1,2 +1,2 @@
 # HACKATHON
-Project name=""
+Project name="Enter Name"
