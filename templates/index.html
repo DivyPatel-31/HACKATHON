@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In / Sign Up with OTP</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom styles */
+    body {
+      font-family: 'Inter', sans-serif;
+      overflow: hidden; /* Hide overflow to prevent scrollbars from animation */
+    }
+
+    /* Animated background */
+    .animated-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      transition: background-image 0.6s ease-in-out;
+      animation: gradientAnimation 15s ease infinite;
+      z-index: -1;
+    }
+
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Form transition styles */
+    .form-container {
+      transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+      transform: translateY(0);
+      opacity: 1;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .form-container.hidden-left {
+      transform: translate(-150%, -50%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .form-container.hidden-right {
+      transform: translate(50%, -50%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Background images */
+    .bg-signup {
+      background-image: url('https://images.unsplash.com/photo-1517836357463-d25dfeac0fd7?q=80&w=1770&auto=format&fit=crop');
+    }
+
+    .bg-signin {
+      background-image: url('https://images.unsplash.com/photo-1543269824-5d51381387d3?q=80&w=1770&auto=format&fit=crop');
+    }
+  </style>
+</head>
+<body class="text-white min-h-screen flex items-center justify-center relative">
+
+  <div id="main-bg" class="animated-bg bg-signup"></div>
+
+  <!-- ✅ Message now floats above card -->
+  <div id="message" 
+       class="absolute top-5 w-full text-center font-semibold transition-all duration-300 z-20">
+  </div>
+
+  <div class="bg-white text-gray-800 p-8 sm:p-12 rounded-2xl shadow-2xl max-w-lg w-full m-4 relative z-10 overflow-hidden" style="height: 550px;">
+    
+    <h1 class="text-4xl sm:text-5xl font-extrabold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">
+      Welcome
+    </h1>
+
+    <!-- Sign Up Form -->
+    <div id="signup-form" class="form-container">
+      <h2 class="text-2xl font-bold text-center mb-6">🔑 Sign Up</h2>
+      <input type="email" id="signupEmail" placeholder="Enter Email"
+             class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+      <input type="password" id="signupPassword" placeholder="Create Password"
+             class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+      <button onclick="signup()"
+              class="w-full p-3 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105">
+        Sign Up
+      </button>
+      <div class="mt-4 text-sm text-center">
+        Already have an account? <a href="#" onclick="showSignIn()" class="text-blue-600 hover:underline font-medium">Sign In</a>
+      </div>
+    </div>
+
+    <!-- OTP Verification Form (initially hidden) -->
+    <div id="otp-form" class="form-container hidden-right">
+      <h2 class="text-2xl font-bold text-center mb-6">✅ Verify OTP</h2>
+      <p class="text-center text-sm mb-4">An OTP has been sent to your email.</p>
+      <input type="text" id="verifyEmail" placeholder="Enter Email"
+             class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+      <input type="text" id="otp" placeholder="Enter OTP"
+             class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+      <button onclick="verifyOtp()"
+              class="w-full p-3 font-semibold text-white bg-green-600 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200 transform hover:scale-105">
+        Verify OTP
+      </button>
+      <div class="mt-4 text-sm text-center">
+        <a href="#" onclick="showSignUp()" class="text-blue-600 hover:underline font-medium">Back to Sign Up</a>
+      </div>
+    </div>
+
+    <!-- Sign In Form (initially hidden) -->
+    <div id="signin-form" class="form-container hidden-right">
+      <h2 class="text-2xl font-bold text-center mb-6">🔓 Sign In</h2>
+      <input type="email" id="signinEmail" placeholder="Enter Email"
+             class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+      <input type="password" id="signinPassword" placeholder="Enter Password"
+             class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
+      <button onclick="signin()"
+              class="w-full p-3 font-semibold text-white bg-purple-600 rounded-lg shadow-md hover:bg-purple-700 transition-colors duration-200 transform hover:scale-105">
+        Sign In
+      </button>
+      <div class="mt-4 text-sm text-center">
+        Don't have an account? <a href="#" onclick="showSignUp()" class="text-blue-600 hover:underline font-medium">Sign Up</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Utility function to show dynamic messages
+    function showMessage(text, isError = false) {
+      const messageEl = document.getElementById("message");
+      messageEl.innerText = text;
+      messageEl.className = `absolute top-5 w-full text-center font-semibold transition-all duration-300 z-20 ${isError ? 'text-red-500' : 'text-green-500'}`;
+    }
+
+    // Function to switch between forms with a slide transition
+    function showForm(formToShow) {
+      const forms = ["signup-form", "otp-form", "signin-form"];
+      const mainBg = document.getElementById("main-bg");
+      if (formToShow === "signup-form") {
+        mainBg.classList.remove("bg-signin");
+        mainBg.classList.add("bg-signup");
+      } else if (formToShow === "signin-form") {
+        mainBg.classList.remove("bg-signup");
+        mainBg.classList.add("bg-signin");
+      }
+
+      forms.forEach(id => {
+        const formEl = document.getElementById(id);
+        if (id === formToShow) {
+          formEl.classList.remove("hidden-left", "hidden-right");
+          formEl.classList.remove("hidden");
+        } else {
+          formEl.classList.add("hidden");
+        }
+      });
+      showMessage(""); // Clear message when switching
+    }
+
+    function showSignUp() {
+      showForm("signup-form");
+    }
+
+    function showSignIn() {
+      showForm("signin-form");
+    }
+
+    function showOtp() {
+      showForm("otp-form");
+    }
+    
+    // Asynchronous functions for form submission
+    async function signup() {
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+      if (!email || !password) {
+        showMessage("Email and password are required.", true);
+        return;
+      }
+      try {
+        const res = await fetch("/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMessage(data.message);
+          document.getElementById("verifyEmail").value = email;
+          showOtp();
+        } else {
+          showMessage(data.error, true);
+        }
+      } catch (error) {
+        showMessage("An error occurred. Please try again.", true);
+      }
+    }
+
+    async function verifyOtp() {
+      const email = document.getElementById("verifyEmail").value;
+      const otp = document.getElementById("otp").value;
+      if (!email || !otp) {
+        showMessage("Email and OTP are required.", true);
+        return;
+      }
+      try {
+        const res = await fetch("/verify-otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMessage(data.message);
+          showSignIn();
+        } else {
+          showMessage(data.error, true);
+        }
+      } catch (error) {
+        showMessage("An error occurred. Please try again.", true);
+      }
+    }
+
+    async function signin() {
+      const email = document.getElementById("signinEmail").value;
+      const password = document.getElementById("signinPassword").value;
+      if (!email || !password) {
+        showMessage("Email and password are required.", true);
+        return;
+      }
+      try {
+        const res = await fetch("/signin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showMessage(data.message);
+          // ✅ Here you could redirect after success:
+          // window.location.href = "/home";
+        } else {
+          showMessage(data.error, true);
+        }
+      } catch (error) {
+        showMessage("An error occurred. Please try again.", true);
+      }
+    }
+    
+    // Initial display
+    document.addEventListener("DOMContentLoaded", () => {
+        showForm("signup-form");
+    });
+  </script>
+</body>
+</html>
