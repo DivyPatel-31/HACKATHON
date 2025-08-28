@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session
+from flask import Flask, request, jsonify, render_template, session
 import random
 import smtplib
 from email.mime.text import MIMEText
@@ -7,24 +7,24 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"  # Change this in production
+app.secret_key = "supersecretkey"  # Change in production
 
 # Gmail SMTP
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-SMTP_USERNAME = "vortxofficial.10.5@gmail.com"
-SMTP_PASSWORD = "ufxe ewne axcz kutd"  # App password
+SMTP_USERNAME = "vortxofficial.10.5@gmail.com"  # Your Gmail
+SMTP_PASSWORD = "ufxe ewne axcz kutd"            # App password
 
 # MySQL connection
 db = mysql.connector.connect(
     host="localhost",
-    user="root",      # <-- replace with your MySQL username
-    password="12345",      # <-- replace with your MySQL password
+    user="root",
+    password="12345",
     database="otp_system"
 )
 cursor = db.cursor(dictionary=True)
 
-# Function to send OTP
+# Send OTP Email
 def send_otp_email(email, otp):
     try:
         email_body = f"""
@@ -129,25 +129,32 @@ def signup():
     password = data.get("password")
 
     if not email or not password:
-        return jsonify({"error": "Email and Password required"}), 400
+        return jsonify({"error": "Email and password required"}), 400
 
     hashed_pw = generate_password_hash(password)
 
     try:
         cursor.execute("INSERT INTO users (email, password) VALUES (%s, %s)", (email, hashed_pw))
         db.commit()
-    except:
+    except mysql.connector.IntegrityError:
         return jsonify({"error": "User already exists"}), 400
 
     # Generate OTP
     otp = str(random.randint(100000, 999999))
-    # OTP expiration in 5 minutes
-    expires_at = datetime.now() + timedelta(minutes=5)
-    cursor.execute("INSERT INTO otp_codes (email, otp, expires_at) VALUES (%s, %s, %s)", (email, otp, expires_at))
-    db.commit()
+    expires_at = (datetime.now() + timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')
+
+    try:
+        cursor.execute(
+        "INSERT INTO otp_codes (email, otp, expires_at) VALUES (%s, %s, %s)",
+        (email, otp, expires_at)
+)
+        db.commit()
+        print("✅ OTP inserted into database")
+    except Exception as e:
+        print(f"❌ OTP insert failed: {e}")
+        return jsonify({"error": "Failed to generate OTP"}), 500
 
     send_otp_email(email, otp)
-
     return jsonify({"message": "Sign up successful! OTP sent to your email"}), 200
 
 # Verify OTP
@@ -161,19 +168,18 @@ def verify_otp():
     record = cursor.fetchone()
 
     if not record:
-        return jsonify({"error": "No OTP found for this email. Please sign up again."}), 400
+        return jsonify({"error": "No OTP found. Please sign up again."}), 400
 
     if record["otp"] != otp:
-        return jsonify({"error": "Invalid OTP. Please try again."}), 400
+        return jsonify({"error": "Invalid OTP"}), 400
 
     if datetime.now() > record["expires_at"]:
-        return jsonify({"error": "OTP has expired. Please sign up again to get a new one."}), 400
+        return jsonify({"error": "OTP expired. Please sign up again."}), 400
 
     cursor.execute("UPDATE users SET verified=1 WHERE email=%s", (email,))
-    db.commit()
-    # Optional: Delete the used OTP to prevent replay attacks
     cursor.execute("DELETE FROM otp_codes WHERE id=%s", (record["id"],))
     db.commit()
+
     return jsonify({"message": "OTP verified successfully"}), 200
 
 # Sign In
@@ -193,7 +199,7 @@ def signin():
         return jsonify({"error": "Invalid password"}), 400
 
     if not user["verified"]:
-        return jsonify({"error": "Email not verified. Please check your OTP"}), 400
+        return jsonify({"error": "Email not verified"}), 400
 
     session["user"] = email
     return jsonify({"message": "Signed in successfully"}), 200

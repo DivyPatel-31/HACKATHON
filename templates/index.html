@@ -4,78 +4,69 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign In / Sign Up with OTP</title>
-  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Custom styles */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
     body {
-      font-family: 'Inter', sans-serif;
-      overflow: hidden; /* Hide overflow to prevent scrollbars from animation */
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+      background-color: #f0f4f8;
     }
 
-    /* Animated background */
     .animated-bg {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background-size: cover;
       background-position: center;
-      transition: background-image 0.6s ease-in-out;
-      animation: gradientAnimation 15s ease infinite;
+      transition: background-image 0.8s ease-in-out;
       z-index: -1;
     }
 
-    @keyframes gradientAnimation {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    /* Form transition styles */
     .form-container {
-      transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
-      transform: translateY(0);
-      opacity: 1;
-      position: absolute;
-      top: 50%;
-      left: 50%;
+      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.6s ease-in-out;
+      position: absolute; top: 50%; left: 50%;
       transform: translate(-50%, -50%);
     }
 
-    .form-container.hidden-left {
-      transform: translate(-150%, -50%);
-      opacity: 0;
-      pointer-events: none;
-    }
+    .form-container.hidden { opacity:0; pointer-events:none; transform:translate(-50%, -50%) scale(0.9) rotateY(-10deg); }
+    .form-container.show { opacity:1; pointer-events:auto; transform:translate(-50%, -50%) scale(1) rotateY(0deg); }
 
-    .form-container.hidden-right {
-      transform: translate(50%, -50%);
-      opacity: 0;
-      pointer-events: none;
-    }
+    .otp-box { text-align:center; font-size:1.5rem; border:2px solid #e2e8f0; border-radius:12px; color:#1a202c; }
+    .otp-box:focus { border-color:#3b82f6; box-shadow:0 0 0 3px rgba(59,130,246,0.5); outline:none; }
 
-    /* Background images */
-    .bg-signup {
-      background-image: url('https://images.unsplash.com/photo-1517836357463-d25dfeac0fd7?q=80&w=1770&auto=format&fit=crop');
+    .input-group { position:relative; }
+    .input-group input:focus + .input-label,
+    .input-group input:not(:placeholder-shown) + .input-label {
+      transform: translateY(-1.5rem) scale(0.8);
+      color:#3b82f6;
     }
+    .input-label { position:absolute; top:1rem; left:1rem; color:#9ca3af; pointer-events:none; transition: transform 0.3s ease, color 0.3s ease, font-size 0.3s ease; }
 
-    .bg-signin {
-      background-image: url('https://images.unsplash.com/photo-1543269824-5d51381387d3?q=80&w=1770&auto=format&fit=crop');
+    .stylish-btn {
+      position:relative; overflow:hidden; z-index:1; font-weight:600; transition: color 0.4s ease, transform 0.3s ease, box-shadow 0.3s ease;
+      box-shadow:0 4px 6px rgba(0,0,0,0.1);
     }
+    .stylish-btn::before {
+      content:''; position:absolute; top:0; left:-100%; width:100%; height:100%;
+      background:linear-gradient(90deg,#60a5fa,#8b5cf6,#c084fc); transition:transform 0.4s ease-in-out; z-index:-1;
+    }
+    .stylish-btn:hover::before { transform: translateX(100%); }
+    .stylish-btn:hover { color:white; transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+    .stylish-btn:active { transform:translateY(0); box-shadow:0 4px 6px rgba(0,0,0,0.1); }
+
+    .bg-signup { background-image: url('https://images.unsplash.com/photo-1517836357463-d25dfeac0fd7?q=80&w=1770&auto=format&fit=crop'); }
+    .bg-signin { background-image: url('https://images.unsplash.com/photo-1543269824-5d51381387d3?q=80&w=1770&auto=format&fit=crop'); }
+
   </style>
 </head>
-<body class="text-white min-h-screen flex items-center justify-center relative">
+<body class="text-gray-800 min-h-screen flex items-center justify-center relative">
 
   <div id="main-bg" class="animated-bg bg-signup"></div>
+  <div id="message" class="absolute top-5 w-full text-center font-semibold transition-all duration-300 z-20"></div>
 
-  <!-- ✅ Message now floats above card -->
-  <div id="message" 
-       class="absolute top-5 w-full text-center font-semibold transition-all duration-300 z-20">
-  </div>
-
-  <div class="bg-white text-gray-800 p-8 sm:p-12 rounded-2xl shadow-2xl max-w-lg w-full m-4 relative z-10 overflow-hidden" style="height: 550px;">
+  <div class="bg-white p-8 sm:p-12 rounded-2xl shadow-2xl max-w-lg w-full m-4 relative z-10 overflow-hidden" style="height:550px;">
     
     <h1 class="text-4xl sm:text-5xl font-extrabold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">
       Welcome
@@ -84,47 +75,62 @@
     <!-- Sign Up Form -->
     <div id="signup-form" class="form-container">
       <h2 class="text-2xl font-bold text-center mb-6">🔑 Sign Up</h2>
-      <input type="email" id="signupEmail" placeholder="Enter Email"
-             class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-      <input type="password" id="signupPassword" placeholder="Create Password"
-             class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-      <button onclick="signup()"
-              class="w-full p-3 font-semibold text-white bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 transition-colors duration-200 transform hover:scale-105">
-        Sign Up
-      </button>
+      <div class="input-group mb-4">
+        <input type="email" id="signupEmail" placeholder=" " class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <label for="signupEmail" class="input-label">Enter Email</label>
+        <p id="signupEmailError" class="text-red-500 text-sm mt-2 hidden"></p>
+      </div>
+      <div class="input-group mb-4">
+        <input type="password" id="signupPassword" placeholder=" " class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <label for="signupPassword" class="input-label">Create Password</label>
+        <button type="button" onclick="togglePassword('signupPassword')" class="absolute right-3 top-3 text-gray-500">👁️</button>
+        <p id="signupPasswordError" class="text-red-500 text-sm mt-2 hidden"></p>
+      </div>
+      <button onclick="signup()" class="w-full p-3 text-white bg-blue-600 rounded-lg stylish-btn">Sign Up</button>
       <div class="mt-4 text-sm text-center">
         Already have an account? <a href="#" onclick="showSignIn()" class="text-blue-600 hover:underline font-medium">Sign In</a>
       </div>
     </div>
 
-    <!-- OTP Verification Form (initially hidden) -->
-    <div id="otp-form" class="form-container hidden-right">
+    <!-- OTP Verification Form -->
+    <div id="otp-form" class="form-container hidden">
       <h2 class="text-2xl font-bold text-center mb-6">✅ Verify OTP</h2>
       <p class="text-center text-sm mb-4">An OTP has been sent to your email.</p>
-      <input type="text" id="verifyEmail" placeholder="Enter Email"
-             class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-      <input type="text" id="otp" placeholder="Enter OTP"
-             class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-      <button onclick="verifyOtp()"
-              class="w-full p-3 font-semibold text-white bg-green-600 rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200 transform hover:scale-105">
-        Verify OTP
-      </button>
+      <div class="input-group mb-4">
+        <input type="email" id="verifyEmail" placeholder=" " readonly class="w-full p-3 border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed">
+        <label for="verifyEmail" class="input-label">Your Email</label>
+      </div>
+      <div class="flex justify-between gap-2 mb-4">
+        <input type="text" maxlength="1" class="otp-box w-12 h-12" id="otp1">
+        <input type="text" maxlength="1" class="otp-box w-12 h-12" id="otp2">
+        <input type="text" maxlength="1" class="otp-box w-12 h-12" id="otp3">
+        <input type="text" maxlength="1" class="otp-box w-12 h-12" id="otp4">
+        <input type="text" maxlength="1" class="otp-box w-12 h-12" id="otp5">
+        <input type="text" maxlength="1" class="otp-box w-12 h-12" id="otp6">
+      </div>
+      <button onclick="verifyOtp()" class="w-full p-3 text-white bg-green-600 rounded-lg stylish-btn">Verify OTP</button>
+      <p id="otpError" class="text-red-500 text-sm mt-2 hidden text-center"></p>
       <div class="mt-4 text-sm text-center">
         <a href="#" onclick="showSignUp()" class="text-blue-600 hover:underline font-medium">Back to Sign Up</a>
       </div>
     </div>
 
-    <!-- Sign In Form (initially hidden) -->
-    <div id="signin-form" class="form-container hidden-right">
+    <!-- Sign In Form -->
+    <div id="signin-form" class="form-container hidden">
       <h2 class="text-2xl font-bold text-center mb-6">🔓 Sign In</h2>
-      <input type="email" id="signinEmail" placeholder="Enter Email"
-             class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-      <input type="password" id="signinPassword" placeholder="Enter Password"
-             class="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200">
-      <button onclick="signin()"
-              class="w-full p-3 font-semibold text-white bg-purple-600 rounded-lg shadow-md hover:bg-purple-700 transition-colors duration-200 transform hover:scale-105">
-        Sign In
-      </button>
+      <div class="input-group mb-4">
+        <input type="email" id="signinEmail" placeholder=" " class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <label for="signinEmail" class="input-label">Enter Email</label>
+        <p id="emailError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+      <div class="input-group mb-4">
+        <input type="password" id="signinPassword" placeholder=" " class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500">
+        <label for="signinPassword" class="input-label">Enter Password</label>
+        <button type="button" onclick="togglePassword('signinPassword')" class="absolute right-3 top-3 text-gray-500">👁️</button>
+        <p id="passwordError" class="text-red-500 text-sm mt-1 hidden"></p>
+      </div>
+      <button onclick="signin()" class="w-full p-3 text-white bg-purple-600 rounded-lg stylish-btn">Sign In</button>
+      <p id="signinSuccess" class="text-green-500 text-sm mt-2 hidden text-center"></p>
       <div class="mt-4 text-sm text-center">
         Don't have an account? <a href="#" onclick="showSignUp()" class="text-blue-600 hover:underline font-medium">Sign Up</a>
       </div>
@@ -133,131 +139,98 @@
   </div>
 
   <script>
-    // Utility function to show dynamic messages
-    function showMessage(text, isError = false) {
-      const messageEl = document.getElementById("message");
-      messageEl.innerText = text;
-      messageEl.className = `absolute top-5 w-full text-center font-semibold transition-all duration-300 z-20 ${isError ? 'text-red-500' : 'text-green-500'}`;
+    function togglePassword(id){
+      const pwd = document.getElementById(id);
+      pwd.type = pwd.type === "password" ? "text" : "password";
     }
 
-    // Function to switch between forms with a slide transition
-    function showForm(formToShow) {
-      const forms = ["signup-form", "otp-form", "signin-form"];
-      const mainBg = document.getElementById("main-bg");
-      if (formToShow === "signup-form") {
-        mainBg.classList.remove("bg-signin");
-        mainBg.classList.add("bg-signup");
-      } else if (formToShow === "signin-form") {
-        mainBg.classList.remove("bg-signup");
-        mainBg.classList.add("bg-signin");
-      }
+    function clearForms(){
+      const inputs = document.querySelectorAll('input:not([readonly])');
+      inputs.forEach(i=>i.value='');
+      document.querySelectorAll('p[id$="Error"], p[id$="Success"]').forEach(msg=>msg.classList.add("hidden"));
+    }
 
-      forms.forEach(id => {
-        const formEl = document.getElementById(id);
-        if (id === formToShow) {
-          formEl.classList.remove("hidden-left", "hidden-right");
-          formEl.classList.remove("hidden");
-        } else {
-          formEl.classList.add("hidden");
-        }
+    function showForm(formId){
+      const forms = ["signup-form","otp-form","signin-form"];
+      forms.forEach(id=>{
+        const el=document.getElementById(id);
+        if(id===formId){ el.classList.remove("hidden"); el.classList.add("show"); }
+        else{ el.classList.remove("show"); el.classList.add("hidden"); }
       });
-      showMessage(""); // Clear message when switching
+      const mainBg = document.getElementById("main-bg");
+      if(formId==="signup-form") mainBg.className="animated-bg bg-signup";
+      if(formId==="signin-form") mainBg.className="animated-bg bg-signin";
     }
 
-    function showSignUp() {
-      showForm("signup-form");
-    }
+    function showSignUp(){ clearForms(); showForm("signup-form"); }
+    function showSignIn(){ clearForms(); showForm("signin-form"); }
+    function showOtp(){ clearForms(); showForm("otp-form"); }
 
-    function showSignIn() {
-      showForm("signin-form");
-    }
-
-    function showOtp() {
-      showForm("otp-form");
-    }
-    
-    // Asynchronous functions for form submission
-    async function signup() {
-      const email = document.getElementById("signupEmail").value;
-      const password = document.getElementById("signupPassword").value;
-      if (!email || !password) {
-        showMessage("Email and password are required.", true);
-        return;
-      }
-      try {
-        const res = await fetch("/signup", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          showMessage(data.message);
-          document.getElementById("verifyEmail").value = email;
-          showOtp();
-        } else {
-          showMessage(data.error, true);
-        }
-      } catch (error) {
-        showMessage("An error occurred. Please try again.", true);
-      }
-    }
-
-    async function verifyOtp() {
-      const email = document.getElementById("verifyEmail").value;
-      const otp = document.getElementById("otp").value;
-      if (!email || !otp) {
-        showMessage("Email and OTP are required.", true);
-        return;
-      }
-      try {
-        const res = await fetch("/verify-otp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, otp })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          showMessage(data.message);
-          showSignIn();
-        } else {
-          showMessage(data.error, true);
-        }
-      } catch (error) {
-        showMessage("An error occurred. Please try again.", true);
-      }
-    }
-
-    async function signin() {
-      const email = document.getElementById("signinEmail").value;
-      const password = document.getElementById("signinPassword").value;
-      if (!email || !password) {
-        showMessage("Email and password are required.", true);
-        return;
-      }
-      try {
-        const res = await fetch("/signin", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          showMessage(data.message);
-          // ✅ Here you could redirect after success:
-          // window.location.href = "/home";
-        } else {
-          showMessage(data.error, true);
-        }
-      } catch (error) {
-        showMessage("An error occurred. Please try again.", true);
-      }
-    }
-    
-    // Initial display
-    document.addEventListener("DOMContentLoaded", () => {
-        showForm("signup-form");
+    const otpInputs = Array.from({length:6},(_,i)=>document.getElementById(`otp${i+1}`));
+    otpInputs.forEach((box,index)=>{
+      box.addEventListener("input",e=>{ if(e.target.value.length===1 && index<5) otpInputs[index+1].focus(); });
+      box.addEventListener("keydown",e=>{ if(e.key==="Backspace" && e.target.value.length===0 && index>0) otpInputs[index-1].focus(); });
     });
+
+    async function signup(){
+      const email=document.getElementById("signupEmail").value;
+      const password=document.getElementById("signupPassword").value;
+      const emailError=document.getElementById("signupEmailError");
+      const passwordError=document.getElementById("signupPasswordError");
+      emailError.classList.add("hidden"); passwordError.classList.add("hidden");
+      if(!email){ emailError.innerText="Email required"; emailError.classList.remove("hidden"); return; }
+      if(!password){ passwordError.innerText="Password required"; passwordError.classList.remove("hidden"); return; }
+
+      try{
+        const res=await fetch("/signup",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})});
+        const data=await res.json();
+        if(res.ok){ document.getElementById("verifyEmail").value=email; showOtp(); }
+        else{ emailError.innerText=data.error; emailError.classList.remove("hidden"); }
+      }catch(e){ emailError.innerText="Error during signup"; emailError.classList.remove("hidden"); }
+    }
+
+    async function verifyOtp(){
+      const email=document.getElementById("verifyEmail").value;
+      const otp=otpInputs.map(i=>i.value).join("");
+      const otpError=document.getElementById("otpError"); otpError.classList.add("hidden");
+      if(!email || otp.length<6){ otpError.innerText="Please enter complete OTP"; otpError.classList.remove("hidden"); return; }
+
+      try{
+        const res=await fetch("/verify-otp",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,otp})});
+        const data=await res.json();
+        if(res.ok){ showMessage(data.message); showSignIn(); }
+        else{ otpError.innerText=data.error; otpError.classList.remove("hidden"); }
+      }catch(e){ otpError.innerText="Error verifying OTP"; otpError.classList.remove("hidden"); }
+    }
+
+    async function signin(){
+      const email=document.getElementById("signinEmail").value;
+      const password=document.getElementById("signinPassword").value;
+      const emailError=document.getElementById("emailError");
+      const passwordError=document.getElementById("passwordError");
+      const signinSuccess=document.getElementById("signinSuccess");
+      emailError.classList.add("hidden"); passwordError.classList.add("hidden"); signinSuccess.classList.add("hidden");
+
+      try{
+        const res=await fetch("/signin",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email,password})});
+        const data=await res.json();
+        if(res.ok){ signinSuccess.innerText=data.message; signinSuccess.classList.remove("hidden"); }
+        else{
+          if(data.error==="User not found"){ emailError.innerText="Username not valid"; emailError.classList.remove("hidden"); }
+          else if(data.error==="Invalid password"){ passwordError.innerText="Invalid password"; passwordError.classList.remove("hidden"); }
+          else{ alert(data.error); }
+        }
+      }catch(e){ alert("Error during signin"); }
+    }
+
+    function showMessage(text){
+      const msg=document.getElementById("message");
+      msg.innerText=text;
+      msg.className="absolute top-5 w-full text-center font-semibold transition-all duration-300 z-20 text-green-500";
+    }
+
+    document.addEventListener("DOMContentLoaded",()=>{ showSignUp(); });
   </script>
+
 </body>
 </html>
