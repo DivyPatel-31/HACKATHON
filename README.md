@@ -1,2 +1,0 @@
-# HACKATHON
-Project name="Enter "
