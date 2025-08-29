@@ -1,0 +1,143 @@
+Build a complete end-to-end full stack project called “Coastal Threat Alert System” that collects, analyzes, and visualizes coastal threats (storm surges, cyclones, coastal erosion, pollution, illegal dumping, algal blooms).
+The system must combine frontend, backend, AI/ML pipeline, database, APIs, and deployment setup.
+
+🎯 Core Features
+
+Data Ingestion
+
+Collect data from mock sources:
+
+Physical sensors (tide gauges, weather stations).
+
+Satellite data (simulated via APIs).
+
+Historical CSV datasets.
+
+Create an ingestion pipeline (/ingestion service) that streams this data into the database in near-real time.
+
+AI/ML Analysis
+
+Use Python (FastAPI or Flask) for backend ML services.
+
+Models:
+
+Anomaly detection for sudden water-level rise (storm surge).
+
+Trend prediction for sea-level rise using LSTM/ARIMA.
+
+Classification of pollution levels from sensor data.
+
+ML results exposed via REST API or WebSocket (/ml/api).
+
+Backend (Node.js + Express or FastAPI)
+
+REST + WebSocket APIs:
+
+/alerts → Get latest alerts.
+
+/reports → Submit and view community reports.
+
+/analytics → Fetch processed data for charts.
+
+/auth → User authentication (JWT-based, roles: Govt, NGO, Fisherfolk).
+
+Alert rules engine: if anomaly → trigger notification + insert into DB.
+
+Database
+
+PostgreSQL or MongoDB.
+
+Collections/Tables:
+
+users (id, name, role, contact).
+
+sensors (id, type, location, last_value).
+
+alerts (id, type, severity, timestamp, status).
+
+reports (id, user, type, description, location, media).
+
+historical_data (time-series sensor data).
+
+Frontend (React + TS + Vite + Tailwind)
+
+Dashboard with:
+
+Real-time alerts panel (Framer Motion animations).
+
+Interactive coastal map (React-Leaflet/Mapbox).
+
+Analytics with Recharts/D3.js (tide, wind, pollution trends).
+
+Community reports submission form (with geolocation + media upload).
+
+Role-based views:
+
+Govt: system-wide analytics.
+
+NGOs: pollution + ecosystem health focus.
+
+Fisherfolk: localized alerts & safety tips.
+
+Dark/Light mode toggle with smooth transitions.
+
+Notifications
+
+In-app push notifications.
+
+SMS/Email alerts (Twilio / SendGrid mock integration).
+
+Severity-based notification rules.
+
+Security & Auth
+
+JWT-based authentication.
+
+RBAC (Role-Based Access Control).
+
+Secure API endpoints with role filtering.
+
+DevOps & Deployment
+
+Dockerize frontend, backend, ML services, and DB.
+
+Use Docker Compose for local setup.
+
+Deployment-ready on Render/Heroku/Netlify/Vercel.
+
+📦 Tech Stack
+
+Frontend: React + TypeScript + Vite + Tailwind + shadcn/ui + Recharts + Leaflet.
+
+Backend API: Node.js (Express) OR FastAPI (Python).
+
+ML Models: Python (TensorFlow, PyTorch, scikit-learn).
+
+Database: PostgreSQL / MongoDB.
+
+Notifications: Twilio (SMS), SendGrid (email), WebSocket (in-app).
+
+DevOps: Docker, Docker Compose, optional CI/CD with GitHub Actions.
+
+🗂️ Deliverables
+
+Modular folder structure:
+
+/frontend  → React app (dashboard, map, alerts)  
+/backend   → APIs (alerts, reports, users, analytics)  
+/ml        → ML models + FastAPI service  
+/db        → Schema + migrations  
+/deploy    → Docker + CI/CD configs  
+
+
+Reusable hooks/components in frontend.
+
+REST + WebSocket APIs with OpenAPI docs.
+
+Pretrained ML models with sample datasets.
+
+Scripts to seed mock sensor data.
+
+End-to-end demo (alerts triggering → dashboard update → notification).
+
+⚡ Focus on hackathon-readiness: clean UI/UX, real-time data flow, role-based dashboards, and smooth deployment.
