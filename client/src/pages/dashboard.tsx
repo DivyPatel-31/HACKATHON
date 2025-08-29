@@ -8,6 +8,7 @@ import WaterLevelChart from "@/components/WaterLevelChart";
 import ThreatDistributionChart from "@/components/ThreatDistributionChart";
 import CommunityReports from "@/components/CommunityReports";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const { isAuthenticated, isLoading } = useAuth();
